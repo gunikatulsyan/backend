@@ -35,8 +35,17 @@ export const deleteBrand = async(req:any, res:any)=>{
 
 }
 export const updateBrand = async(req:any, res:any) =>{
-    const{is_active,id} = req.query
-    let query = ` UPDATE brands set is_active=${is_active} WHERE brandid=${id}`
+    const{id} = req.params
+    const {is_active, name, description} = req.body
+    let updatedDataQuery = []
+
+    if(is_active) updatedDataQuery.push(`is_active = ${is_active}`);
+    if(name) updatedDataQuery.push(`name = ${name}`);
+    if(description) updatedDataQuery.push(`description = ${description}`);
+
+    if(updatedDataQuery.length>0) return res.status(200).json({msg: "No data to update"})
+        
+    let query = ` UPDATE brands set ${updatedDataQuery.join(', ')} WHERE brandid=${id}`
     const brand = await pool.query(query)
     return res.status(200).json({msg: "Brand updated successfully", brand})
 }

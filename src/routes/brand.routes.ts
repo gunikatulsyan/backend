@@ -7,6 +7,6 @@ router.get('/', getAllBrands)
 router.get('/:id',getSingleBrand)
 router.post('/',createBrand)
 router.delete('/:id', deleteBrand)
-router.patch('/', updateBrand)
+router.patch('/:id', updateBrand)
 
 export default router
