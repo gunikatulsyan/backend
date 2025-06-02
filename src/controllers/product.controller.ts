@@ -43,8 +43,17 @@ export const deleteProduct = async(req:any, res:any) =>{
 }
 
 export const updateProduct = async(req:any, res:any) =>{
-    const{color,id} = req.query
-    let query = `UPDATE products set color="${color}" WHERE id=${id}`
+    const{id} = req.query;
+    const {color, category, price, name, brand, quantity} = req.body
+    let updatedProduct = []
+    if(color) updatedProduct.push(`color= "${color}"`);
+    if(category) updatedProduct.push(`category= "${category}"`);
+    if(price) updatedProduct.push(`price= ${price}`);
+    if(name) updatedProduct.push(`name= "${name}"`);
+    if(brand) updatedProduct.push(`brand= "${brand}"`);
+    if(quantity) updatedProduct.push(`quantity= ${quantity}`);
+    if(updatedProduct.length === 0) return res.status(200).json({msg:"No data to update"})
+    let query = `UPDATE products set ${updatedProduct.join(', ')} WHERE id=${id}`
     const product = await pool.query(query)
     return res.status(200).json({msg: " Product updated successfully", product})
 }
