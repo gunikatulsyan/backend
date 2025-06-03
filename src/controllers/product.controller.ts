@@ -22,7 +22,7 @@ export const getAllProducts = async(req:any,res:any) => {
 
 export const getSingleProduct = async(req:any, res:any) =>{
     const {id}= req.params
-    const query= `SELECT * from products WHERE id= ${id}`
+    const query= `SELECT * from products WHERE id= ${id}`;
     const [product] = await pool.query(query)
     return res.status(200).json({msg: "Product fetched successfully", product} )
 }

@@ -18,7 +18,7 @@ export const getAllBrands = async(req:any,res:any) => {
 
 export const getSingleBrand = async(req:any,res:any) =>{
     const {id}= req.params
-    const query= ` SELECT * FROM brands WHERE brandid= ${id}`
+    const query= ` SELECT * FROM brands WHERE id= ${id}`
     const [brand]= await pool.query(query)
     return res.status(200).json({msg: "Brand fetched successfully", brand})
 };
@@ -31,6 +31,9 @@ export const createBrand = async(req:Request, res:any) =>{
     const [nameExist]:any = await pool.query(`SELECT * from brands where name ="${name}"`);//checking if brand name already exist or not
     if(nameExist.length) return res.status(400).json({msg:"Brand name already exist"});
 
+    const [namenotExist]:any = await pool.query(`SELECT * from users where name="${name}"`);
+    if(!namenotExist.length) return res.status(400).json({msg:"Brand name doesnot exist"});
+
     const query = ` INSERT INTO brands( name, description, is_active) VALUES (?, ?, ?)`;
     const values = [ name, description, is_active];
     const [result]:any = await pool.query(query,values)
@@ -38,7 +41,9 @@ export const createBrand = async(req:Request, res:any) =>{
 };
 export const deleteBrand = async(req:any, res:any)=>{
     const {id}= req.params
-    const query = ` DELETE FROM brands WHERE brandid= ${id}`
+    const [namenotExist]:any = await pool.query(`SELECT * from users where name="${name}"`);
+    if(!namenotExist.length) return res.status(400).json({msg:"Brand name doesnot exist"});
+    const query = ` DELETE FROM brands WHERE id= ${id}`
     const brand = await pool.query(query)
     return res.status(200).json({msg: " brand deleted successfully", brand})
 
@@ -46,14 +51,18 @@ export const deleteBrand = async(req:any, res:any)=>{
 
 export const updateBrand = async(req:any, res:any) =>{
     const {id} = req.query;
+    const [brandExist]:any = await pool.query(`SELECT * from brands where id="${id}"`);
+    if(!brandExist.length) return res.status(400).json({msg:`Brand with ${id} doesnot exist`});
 
     const {is_active, name, description} = req.body
 
     const {error} = brandDataValidation(req.body)//validation
     if(error) return res.status(400).json({msg: error.details[0].message});
 
-    const [nameExist]:any = await pool.query(`SELECT * from brands where name ="${name}"`);// checking in brand alr exist
+    const [nameExist]:any = await pool.query(`SELECT * from brands where name = "${name}" AND id != ${id}`);// checking in brand alr exist
     if(nameExist.length) return res.status(400).json({msg:"Brand name already exist"});
+
+   
 
     let updatedDataQuery = []
 
@@ -63,7 +72,7 @@ export const updateBrand = async(req:any, res:any) =>{
 
     if(updatedDataQuery.length === 0) return res.status(200).json({msg: "No data to update"})
 
-    let query = ` UPDATE brands SET ${updatedDataQuery.join(', ')} WHERE brandid= ${id}`
+    let query = ` UPDATE brands SET ${updatedDataQuery.join(', ')} WHERE id= ${id}`
     const brand = await pool.query(query)
     return res.status(200).json({msg: "Brand updated successfully", brand})
 }
