@@ -41,8 +41,8 @@ export const createBrand = async(req:Request, res:any) =>{
 };
 export const deleteBrand = async(req:any, res:any)=>{
     const {id}= req.params
-    const [namenotExist]:any = await pool.query(`SELECT * from users where name="${name}"`);
-    if(!namenotExist.length) return res.status(400).json({msg:"Brand name doesnot exist"});
+    const [brandExist]:any = await pool.query(`SELECT * from users where id="${id}"`);
+    if(!brandExist.length) return res.status(400).json({msg:"Brand doesnot exist"});
     const query = ` DELETE FROM brands WHERE id= ${id}`
     const brand = await pool.query(query)
     return res.status(200).json({msg: " brand deleted successfully", brand})
